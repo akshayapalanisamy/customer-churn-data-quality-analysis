@@ -1,0 +1,6 @@
+column,q1,q3,lower_fence,upper_fence,potential_outliers
+age,30.0,47.0,4.5,72.5,0
+tenuremonths,7.0,27.0,-23.0,57.0,0
+monthlycharges,49.99,114.99,-47.51,212.49,0
+totalcharges,449.91,3209.73,-3689.82,7349.46,0
+supporttickets,1.0,4.0,-3.5,8.5,0

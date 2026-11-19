@@ -1,0 +1,12 @@
+column,description,data_type,quality_rule_or_interpretation
+customerid,Unique customer identifier,Text,Identifier; expected unique and non-null
+gender,Customer gender category,Categorical,Female or Male in supplied sample
+age,Customer age in years,Integer,Positive plausible age; inspect range
+tenuremonths,Customer tenure in months,Integer,Non-negative
+subscriptiontype,Subscription tier,Categorical,"Basic, Pro, Enterprise in supplied sample"
+monthlycharges,Monthly subscription charge,Decimal,Non-negative monetary amount
+totalcharges,Total charges recorded,Decimal,Compare with monthlycharges × tenuremonths where applicable
+contracttype,Contract duration category,Categorical,"Month-to-Month, One Year, Two Year"
+supporttickets,Number of support tickets,Integer,Non-negative count
+paymentmethod,Payment method category,Categorical,"Credit Card, Bank Transfer, UPI, Debit Card"
+churn,Whether customer churned,Categorical / binary,Yes or No
