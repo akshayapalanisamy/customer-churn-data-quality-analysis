@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Customer Churn KPI Dashboard</title>
+<style>
+:root{--bg:#f5f7fa;--surf:#fff;--ink:#14213d;--mut:#4b5563;--line:#d9dee7;--ret:#1f5fa8;--chn:#d95f02;--focus:#7a3e00}
+@media(prefers-color-scheme:dark){:root{--bg:#10151f;--surf:#1a2232;--ink:#eef2f8;--mut:#b4bdcc;--line:#33405a;--ret:#6aa9ec;--chn:#ff9a4d;--focus:#ffd29a}}
+*{box-sizing:border-box}html,body{margin:0}
+body{font:16px/1.5 "Segoe UI",system-ui,-apple-system,Roboto,sans-serif;background:var(--bg);color:var(--ink);padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:1.7rem;margin:0 0 4px}h2{font-size:1.05rem;margin:0 0 10px}
+.sub{color:var(--mut);margin:0 0 18px;max-width:75ch}
+.card{background:var(--surf);border:1px solid var(--line);border-radius:8px;padding:16px}
+.filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;align-items:end;margin-bottom:16px}
+label{display:block;font-weight:600;font-size:.9rem;margin-bottom:4px}
+select,button{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--surf);color:var(--ink);width:100%}
+button{background:var(--ink);color:var(--bg);font-weight:600;cursor:pointer}
+input[type=range]{width:100%;accent-color:var(--ret)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:16px}
+.kpi .v{font-size:2rem;font-weight:700;line-height:1.2}.kpi .n{font-weight:600}.kpi .d{color:var(--mut);font-size:.85rem}
+.kpi.risk{border-left:6px solid var(--chn)}.kpi.ok{border-left:6px solid var(--ret)}
+.grid{display:grid;grid-template-columns:1fr;gap:16px}
+@media(min-width:900px){.grid{grid-template-columns:1fr 1fr}}
+.vis{display:grid;grid-template-columns:1fr;gap:14px}
+@media(min-width:560px){.vis{grid-template-columns:1.3fr 1fr}}
+.ins{border-left:3px solid var(--line);padding-left:12px;color:var(--mut);font-size:.92rem}
+.ins b{color:var(--ink)}
+.bar{display:grid;grid-template-columns:110px 1fr 70px;gap:8px;align-items:center;margin:8px 0;font-size:.9rem}
+.track{background:var(--line);height:20px;border-radius:4px;overflow:hidden}
+.fill{height:100%;background:var(--chn)}
+.fill.r{background:var(--ret)}
+.donut{width:170px;height:170px;border-radius:50%;margin:6px auto;position:relative}
+.donut::after{content:"";position:absolute;inset:32px;background:var(--surf);border-radius:50%}
+.leg{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;font-size:.88rem}
+.sw{display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.stack{display:flex;height:20px;border-radius:4px;overflow:hidden;background:var(--line)}
+.defs{margin-top:16px}.defs dt{font-weight:700;margin-top:8px}.defs dd{margin:0;color:var(--mut)}
+.note{margin-top:16px;color:var(--mut);font-size:.88rem}
+.empty{color:var(--mut);font-style:italic}
+</style></head><body><div class="wrap">
+<h1>Customer churn KPI dashboard</h1>
+<p class="sub">Explore churn, retention, revenue at risk and tenure. Choose filters below; every KPI, chart and insight updates. Built from the Task 02 cleaned dataset (EdVyro Task 03).</p>
+
+<section class="card filters" aria-label="Filters">
+ <div><label for="fC">Contract type</label><select id="fC"></select></div>
+ <div><label for="fP">Payment method</label><select id="fP"></select></div>
+ <div><label for="fMin">Minimum tenure: <span id="vMin"></span> months</label><input type="range" id="fMin" min="0" max="48" value="0"></div>
+ <div><label for="fMax">Maximum tenure: <span id="vMax"></span> months</label><input type="range" id="fMax" min="0" max="48" value="48"></div>
+ <div><button id="reset" type="button">Reset filters</button></div>
+</section>
+
+<section class="kpis" aria-live="polite" aria-label="Key performance indicators">
+ <div class="card kpi risk"><div class="n">Churn rate</div><div class="v" id="kChurn"></div><div class="d" id="dChurn"></div></div>
+ <div class="card kpi ok"><div class="n">Retention rate</div><div class="v" id="kRet"></div><div class="d" id="dRet"></div></div>
+ <div class="card kpi risk"><div class="n">Revenue at risk (monthly)</div><div class="v" id="kRev"></div><div class="d">Monthly charges of churned customers</div></div>
+ <div class="card kpi"><div class="n">Average tenure</div><div class="v" id="kTen"></div><div class="d">Months, all filtered customers</div></div>
+</section>
+<p class="ins" id="filterMsg" role="status"></p>
+<p class="ins" id="src"></p>
+
+<div class="grid">
+ <section class="card"><h2>1. Churn vs retention</h2><div class="vis"><div id="c1"></div><div class="ins" id="i1"></div></div></section>
+ <section class="card"><h2>2. Revenue at risk by contract type</h2><div class="vis"><div id="c2"></div><div class="ins" id="i2"></div></div></section>
+ <section class="card"><h2>3. Churn rate by payment method</h2><div class="vis"><div id="c3"></div><div class="ins" id="i3"></div></div></section>
+ <section class="card"><h2>4. Customer tenure distribution</h2><div class="vis"><div id="c4"></div><div class="ins" id="i4"></div></div></section>
+</div>
+
+<section class="card defs"><h2>KPI definitions</h2><dl>
+<dt>Churn rate</dt><dd>Churned customers (Churn = Yes) ÷ total customers × 100.</dd>
+<dt>Retention rate</dt><dd>Retained customers (Churn = No) ÷ total customers × 100. Churn + retention = 100%.</dd>
+<dt>Revenue at risk</dt><dd>Sum of MonthlyCharges for customers with Churn = Yes. The dataset gives no currency, so none is shown.</dd>
+<dt>Average tenure</dt><dd>Mean of TenureMonths across the customers currently selected.</dd></dl>
+<p class="note"><b>Sample-size caution:</b> the Task 02 README describes a 15-record sample. Patterns here describe this sample and cannot represent a whole customer population. Several groups contain 2–4 customers, and contract type and payment method overlap, so differences should not be read as causes.</p>
+</section></div>
+
+<script>
+const CSV_FILE="cleaned_customer_churn.csv";
+const REQUIRED={tenuremonths:"TenureMonths",monthlycharges:"MonthlyCharges",contracttype:"ContractType",paymentmethod:"PaymentMethod",churn:"Churn"};
+let ALL=[];
+const $=id=>document.getElementById(id);
+const CO=["Month-to-Month","One Year","Two Year"];
+function parse(t){const L=t.replace(/^\uFEFF/,"").trim().split(/\r?\n/);
+ const raw=L[0].split(",").map(x=>x.trim().replace(/^"|"$/g,"")),norm=raw.map(x=>x.toLowerCase().replace(/[^a-z0-9]/g,""));
+ const miss=Object.keys(REQUIRED).filter(k=>!norm.includes(k));
+ if(miss.length)throw new Error("Missing column(s) in "+CSV_FILE+": "+miss.join(", ")+". Found: "+raw.join(", "));
+ let skipped=0;const out=[];
+ L.slice(1).filter(l=>l.trim()).forEach(l=>{const c=l.split(",").map(x=>x.trim().replace(/^"|"$/g,"")),o={};
+  norm.forEach((k,i)=>{if(REQUIRED[k])o[REQUIRED[k]]=c[i]});
+  o.TenureMonths=+o.TenureMonths;o.MonthlyCharges=+o.MonthlyCharges;
+  const ch=String(o.Churn).toLowerCase();o.churned=["yes","true","1"].includes(ch);
+  if(isNaN(o.TenureMonths)||isNaN(o.MonthlyCharges)||!["yes","no","true","false","1","0"].includes(ch)||!o.ContractType||!o.PaymentMethod)skipped++;else out.push(o)});
+ out.skipped=skipped;return out}
+const pct=(a,b)=>b?a/b*100:0, f1=x=>x.toFixed(1), f2=x=>x.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+const rows=(items)=>items.map(i=>`<div class="bar"><span>${i.l}</span><div class="track" role="img" aria-label="${i.l}: ${i.t}"><div class="fill ${i.c||""}" style="width:${i.w}%"></div></div><span>${i.t}</span></div>`).join("");
+function init(data){ALL=data;$("src").textContent=`Data source: ${CSV_FILE} (${data.length} customer records loaded${data.skipped?`, ${data.skipped} skipped for missing or invalid values`:""}).`;
+ const opt=(el,k)=>{el.innerHTML='<option value="All">All</option>'+[...new Set(ALL.map(r=>r[k]))].sort().map(v=>`<option>${v}</option>`).join("")};
+ opt($("fC"),"ContractType");opt($("fP"),"PaymentMethod");
+ ["fC","fP","fMin","fMax"].forEach(i=>$(i).addEventListener("input",e=>{
+  if(i==="fMin"&&+$("fMin").value>+$("fMax").value)$("fMax").value=$("fMin").value;
+  if(i==="fMax"&&+$("fMax").value<+$("fMin").value)$("fMin").value=$("fMax").value;render()}));
+ $("reset").onclick=()=>{$("fC").value=$("fP").value="All";$("fMin").value=0;$("fMax").value=48;render()};
+ render()}
+function render(){
+ $("vMin").textContent=$("fMin").value;$("vMax").textContent=$("fMax").value;
+ const c=$("fC").value,p=$("fP").value,lo=+$("fMin").value,hi=+$("fMax").value;
+ const D=ALL.filter(r=>(c==="All"||r.ContractType===c)&&(p==="All"||r.PaymentMethod===p)&&r.TenureMonths>=lo&&r.TenureMonths<=hi);
+ const n=D.length,ch=D.filter(r=>r.churned),k=ch.length,rev=ch.reduce((s,r)=>s+r.MonthlyCharges,0);
+ $("filterMsg").textContent=`Showing ${n} of ${ALL.length} customers.`;
+ $("kChurn").textContent=n?f1(pct(k,n))+"%":"–";$("dChurn").textContent=`${k} of ${n} customers churned`;
+ $("kRet").textContent=n?f1(pct(n-k,n))+"%":"–";$("dRet").textContent=`${n-k} of ${n} customers retained`;
+ $("kRev").textContent=f2(rev);
+ $("kTen").textContent=n?f1(D.reduce((s,r)=>s+r.TenureMonths,0)/n):"–";
+ const none='<p class="empty">No customers match these filters. Reset or widen a filter.</p>';
+ if(!n){["c1","c2","c3","c4"].forEach(i=>$(i).innerHTML=none);["i1","i2","i3","i4"].forEach(i=>$(i).textContent="");return}
+ // 1 donut
+ const a=pct(k,n);
+ $("c1").innerHTML=`<div class="donut" role="img" aria-label="${k} churned, ${n-k} retained" style="background:conic-gradient(var(--chn) 0 ${a}%,var(--ret) ${a}% 100%)"></div><div class="leg"><span><i class="sw" style="background:var(--chn)"></i>Churned: ${k} (${f1(a)}%)</span><span><i class="sw" style="background:var(--ret)"></i>Retained: ${n-k} (${f1(100-a)}%)</span></div>`;
+ $("i1").innerHTML=`<b>Insight:</b> ${k} of ${n} selected customers churned (${f1(a)}%). ${a>=50?"Churned customers are the majority of this selection.":a===0?"No churn in this selection.":"Retained customers are the majority of this selection."} Small sample: indicative only.`;
+ // 2 revenue by contract
+ const cg=[...CO,...[...new Set(D.map(r=>r.ContractType))].filter(x=>!CO.includes(x))].map(x=>{const s=D.filter(r=>r.ContractType===x);return{l:x,n:s.length,r:s.filter(r=>r.churned).reduce((t,r)=>t+r.MonthlyCharges,0)}}).filter(x=>x.n);
+ const mx=Math.max(...cg.map(x=>x.r),0);
+ $("c2").innerHTML=rows(cg.map(x=>({l:x.l,w:mx?x.r/mx*100:0,t:f2(x.r)})));
+ const top=cg.reduce((b,x)=>x.r>b.r?x:b,cg[0]);
+ $("i2").innerHTML=`<b>Insight:</b> ${mx>0?`${top.l} carries the most revenue at risk (${f2(top.r)} per month, ${f1(pct(top.r,rev))}% of the ${f2(rev)} total). `+(cg.filter(x=>x.r>0).length===1?"It is the only contract type with churned customers here.":""):"No churned customers, so no revenue is at risk in this selection."}`;
+ // 3 payment
+ const pg=[...new Set(D.map(r=>r.PaymentMethod))].sort().map(x=>{const s=D.filter(r=>r.PaymentMethod===x);return{l:x,n:s.length,k:s.filter(r=>r.churned).length}});
+ $("c3").innerHTML=rows(pg.map(x=>({l:x.l,w:pct(x.k,x.n),t:`${f1(pct(x.k,x.n))}% (${x.k}/${x.n})`})));
+ const tp=pg.reduce((b,x)=>pct(x.k,x.n)>pct(b.k,b.n)?x:b,pg[0]),ties=pg.filter(x=>pct(x.k,x.n)===pct(tp.k,tp.n));
+ $("i3").innerHTML=`<b>Insight:</b> ${tp.k===0?"No payment method shows churn in this selection.":ties.length>1?`${ties.map(x=>x.l).join(" and ")} tie for the highest churn rate (${f1(pct(tp.k,tp.n))}%).`:`${tp.l} has the highest churn rate (${f1(pct(tp.k,tp.n))}%, ${tp.k} of ${tp.n}).`} Groups are small and overlap with contract type, so this is not proof that payment method drives churn.`;
+ // 4 tenure
+ const B=[[0,11],[12,23],[24,35],[36,48]];
+ const tg=B.map(([a,b])=>{const s=D.filter(r=>r.TenureMonths>=a&&r.TenureMonths<=b);return{l:`${a}–${b} mo`,n:s.length,k:s.filter(r=>r.churned).length}});
+ const m=Math.max(...tg.map(x=>x.n));
+ $("c4").innerHTML=tg.map(x=>`<div class="bar"><span>${x.l}</span><div class="stack" role="img" aria-label="${x.l}: ${x.k} churned, ${x.n-x.k} retained" style="width:${x.n/m*100}%"><div style="width:${pct(x.k,x.n)}%;background:var(--chn)"></div><div style="flex:1;background:var(--ret)"></div></div><span>${x.n}</span></div>`).join("")+`<div class="leg"><span><i class="sw" style="background:var(--chn)"></i>Churned</span><span><i class="sw" style="background:var(--ret)"></i>Retained</span></div>`;
+ const mc=Math.max(...ch.map(r=>r.TenureMonths)),mr=D.filter(r=>!r.churned).map(r=>r.TenureMonths),av=x=>x.length?f1(x.reduce((s,y)=>s+y,0)/x.length):null;
+ $("i4").innerHTML=`<b>Insight:</b> ${k?`Churned customers average ${av(ch.map(r=>r.TenureMonths))} months of tenure (longest ${mc}); `:"No churned customers here; "}${mr.length?`retained customers average ${av(mr)} months (shortest ${Math.min(...mr)}).`:"no retained customers here."} ${k&&mr.length&&mc<Math.min(...mr)?"In this sample, every churned customer left before the shortest-tenure retained customer, so early months look like the risk window.":""}`;
+}
+fetch(CSV_FILE).then(r=>{if(!r.ok)throw new Error("Could not load "+CSV_FILE+" (HTTP "+r.status+"). Keep it in the same folder as index.html.");return r.text()})
+ .then(t=>init(parse(t)))
+ .catch(e=>{$("filterMsg").textContent="Dashboard could not load its data. "+e.message+" If you opened index.html by double-clicking, view it through GitHub Pages or run a local server (python3 -m http.server)."});
+</script></body></html>
