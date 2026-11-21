@@ -1,0 +1,4 @@
+RiskTier,Customers,ObservedChurners,RetainedCustomers,ObservedChurnRatePct
+High,6,6,0,100.0
+Low,8,0,8,0.0
+Medium,1,1,0,100.0

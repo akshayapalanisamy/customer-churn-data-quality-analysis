@@ -1,0 +1,8 @@
+TestCase,InputScenario,ExpectedScore,ExpectedTier,ExpectedBehavior
+Minimum boundary,Two Year; tenure 13; tickets 0; charge 49.99,0,Low,No rule fires.
+Maximum boundary,Month-to-Month; tenure 12; tickets 4; charge 80.00,8,High,All four rules fire.
+Tenure threshold,Month-to-Month; tenure exactly 12; tickets 0; charge 49.99,5,High,12 is included in <=12.
+Support threshold,One Year; tenure 13; tickets exactly 4; charge 49.99,2,Low,4 tickets adds 2 points; total remains Low.
+Charge threshold,One Year; tenure 13; tickets 0; charge exactly 80.00,1,Low,INR 80 is included in >=80.
+Missing input,Any required scoring field is missing,Not scored,Review,Flag for correction; do not silently use zero.
+Invalid input,"Negative tenure, tickets, or monthly charge",Not scored,Review,Reject/flag invalid negative values.
