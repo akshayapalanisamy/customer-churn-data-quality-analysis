@@ -1,0 +1,26 @@
+EDVYRO TASK 05 — PRESENTATION RECORDING SCRIPT
+Suggested duration: 3–4 minutes. The task requires a presentation recording. This script helps you record your own screen and narration; no recording is fabricated.
+
+SLIDE 1 — OPENING
+Hello. This presentation summarizes a customer churn analysis and recommends a small retention pilot. The analysis uses the 15 customer records supplied for the EdVyro tasks. Because the sample is small, I will separate observed patterns from conclusions we cannot make.
+
+SLIDE 2 — BUSINESS QUESTION
+The business question is where a subscription business should focus its first retention experiment. The aim is to identify useful patterns and turn them into actions that can be measured. This is not a claim that we can predict every customer's behavior.
+
+SLIDE 3 — FIVE FINDINGS
+Seven of 15 customers churned, giving a sample churn rate of 46.7%. All seven month-to-month customers churned, while none of the eight fixed-term customers did. Churned customers averaged 4.29 support tickets, compared with one ticket among retained customers. Average tenure was 7 months for churned customers and 29.1 months for retained customers. Finally, monthly charges associated with churned records total 409.93 in dataset units. The dataset does not specify a currency.
+
+SLIDE 4 — INTERPRETATION
+These patterns suggest that early tenure may be a vulnerable period, repeated support contacts may indicate unresolved friction, and contract type may be associated with retention. However, this small sample cannot establish that any of these factors caused churn. Other differences between customers may explain the results.
+
+SLIDE 5 — RECOMMENDED PILOT
+I recommend a small pilot. Customer Success can check in with new customers before month three. Support can flag repeated contacts and assign one person to own resolution. The account team can explain fixed-term options transparently when they fit customer needs. Analytics should compare pilot outcomes with a comparable holdout group.
+
+SLIDE 6 — IMPACT
+The 409.93 figure is the sum of monthly charges for accounts marked as churned. It is not revenue that can certainly be recovered. As a sensitivity illustration only, retaining one to three accounts at observed charges corresponds to 49.99 to 239.97 per month. This assumes unchanged charges and continued activity, and excludes costs, discounts, margin and later churn. It is not a forecast.
+
+SLIDE 7 — LIMITATIONS
+There are only 15 records. We do not have a sampling frame, observation period, churn reasons, currency, margins, satisfaction data or intervention outcomes. The analysis is descriptive, and no out-of-sample validation is possible. A larger time-based dataset is needed before generalizing.
+
+SLIDE 8 — DECISION
+The decision requested is to approve a measured pilot focused on early-tenure customers with repeated support needs. Test the actions, compare outcomes, and scale only if the evidence supports it. Thank you.

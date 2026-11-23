@@ -1,0 +1,11 @@
+Metric,Value,Unit
+Customers,15.0,records
+Churned,7.0,records
+Retained,8.0,records
+Churn rate,46.7,%
+Retention rate,53.3,%
+Monthly charges associated with churn,409.93,dataset units; currency unspecified
+Average tenure - churned,7.0,months
+Average tenure - retained,29.1,months
+Average tickets - churned,4.29,tickets
+Average tickets - retained,1.0,tickets
